@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A2C491371D0DC34D00895E36 /* UIScrollView+SVInfiniteScrolling.m in Sources */ = {isa = PBXBuildFile; fileRef = A2C491341D0DC34D00895E36 /* UIScrollView+SVInfiniteScrolling.m */; };
+		A2C491381D0DC34D00895E36 /* UIScrollView+SVPullToRefresh.m in Sources */ = {isa = PBXBuildFile; fileRef = A2C491361D0DC34D00895E36 /* UIScrollView+SVPullToRefresh.m */; };
 		A2E7B0101D0D72D30087C8B9 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = A2E7B00F1D0D72D30087C8B9 /* main.m */; };
 		A2E7B0131D0D72D30087C8B9 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = A2E7B0121D0D72D30087C8B9 /* AppDelegate.m */; };
 		A2E7B0161D0D72D30087C8B9 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A2E7B0151D0D72D30087C8B9 /* ViewController.m */; };
@@ -15,11 +17,14 @@
 		A2E7B01E1D0D72D30087C8B9 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A2E7B01C1D0D72D30087C8B9 /* LaunchScreen.storyboard */; };
 		A2E7B0281D0D73020087C8B9 /* RSMasterTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = A2E7B0271D0D73020087C8B9 /* RSMasterTableView.m */; };
 		A2E7B0301D0D732D0087C8B9 /* RSTableViewDataSource.m in Sources */ = {isa = PBXBuildFile; fileRef = A2E7B02F1D0D732D0087C8B9 /* RSTableViewDataSource.m */; };
-		A2E7B0371D0D73D40087C8B9 /* UIScrollView+SVInfiniteScrolling.m in Sources */ = {isa = PBXBuildFile; fileRef = A2E7B0341D0D73D40087C8B9 /* UIScrollView+SVInfiniteScrolling.m */; };
-		A2E7B0381D0D73D40087C8B9 /* UIScrollView+SVPullToRefresh.m in Sources */ = {isa = PBXBuildFile; fileRef = A2E7B0361D0D73D40087C8B9 /* UIScrollView+SVPullToRefresh.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		A2C491321D0DC34D00895E36 /* SVPullToRefresh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SVPullToRefresh.h; sourceTree = "<group>"; };
+		A2C491331D0DC34D00895E36 /* UIScrollView+SVInfiniteScrolling.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIScrollView+SVInfiniteScrolling.h"; sourceTree = "<group>"; };
+		A2C491341D0DC34D00895E36 /* UIScrollView+SVInfiniteScrolling.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIScrollView+SVInfiniteScrolling.m"; sourceTree = "<group>"; };
+		A2C491351D0DC34D00895E36 /* UIScrollView+SVPullToRefresh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIScrollView+SVPullToRefresh.h"; sourceTree = "<group>"; };
+		A2C491361D0DC34D00895E36 /* UIScrollView+SVPullToRefresh.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIScrollView+SVPullToRefresh.m"; sourceTree = "<group>"; };
 		A2E7B00B1D0D72D30087C8B9 /* RSMasterTableViewExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RSMasterTableViewExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A2E7B00F1D0D72D30087C8B9 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		A2E7B0111D0D72D30087C8B9 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -34,11 +39,6 @@
 		A2E7B0271D0D73020087C8B9 /* RSMasterTableView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RSMasterTableView.m; sourceTree = "<group>"; };
 		A2E7B02E1D0D732D0087C8B9 /* RSTableViewDataSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RSTableViewDataSource.h; sourceTree = "<group>"; };
 		A2E7B02F1D0D732D0087C8B9 /* RSTableViewDataSource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RSTableViewDataSource.m; sourceTree = "<group>"; };
-		A2E7B0321D0D73D40087C8B9 /* SVPullToRefresh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SVPullToRefresh.h; sourceTree = "<group>"; };
-		A2E7B0331D0D73D40087C8B9 /* UIScrollView+SVInfiniteScrolling.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIScrollView+SVInfiniteScrolling.h"; sourceTree = "<group>"; };
-		A2E7B0341D0D73D40087C8B9 /* UIScrollView+SVInfiniteScrolling.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIScrollView+SVInfiniteScrolling.m"; sourceTree = "<group>"; };
-		A2E7B0351D0D73D40087C8B9 /* UIScrollView+SVPullToRefresh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIScrollView+SVPullToRefresh.h"; sourceTree = "<group>"; };
-		A2E7B0361D0D73D40087C8B9 /* UIScrollView+SVPullToRefresh.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIScrollView+SVPullToRefresh.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -52,6 +52,18 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		A2C491311D0DC34D00895E36 /* SVPullToRefresh */ = {
+			isa = PBXGroup;
+			children = (
+				A2C491321D0DC34D00895E36 /* SVPullToRefresh.h */,
+				A2C491331D0DC34D00895E36 /* UIScrollView+SVInfiniteScrolling.h */,
+				A2C491341D0DC34D00895E36 /* UIScrollView+SVInfiniteScrolling.m */,
+				A2C491351D0DC34D00895E36 /* UIScrollView+SVPullToRefresh.h */,
+				A2C491361D0DC34D00895E36 /* UIScrollView+SVPullToRefresh.m */,
+			);
+			path = SVPullToRefresh;
+			sourceTree = "<group>";
+		};
 		A2E7B0021D0D72D30087C8B9 = {
 			isa = PBXGroup;
 			children = (
@@ -80,7 +92,6 @@
 				A2E7B01A1D0D72D30087C8B9 /* Assets.xcassets */,
 				A2E7B01C1D0D72D30087C8B9 /* LaunchScreen.storyboard */,
 				A2E7B01F1D0D72D30087C8B9 /* Info.plist */,
-				A2E7B0311D0D73D40087C8B9 /* SVPullToRefresh */,
 				A2E7B00E1D0D72D30087C8B9 /* Supporting Files */,
 			);
 			path = RSMasterTableViewExample;
@@ -99,6 +110,7 @@
 			children = (
 				A2E7B0261D0D73020087C8B9 /* RSMasterTableView.h */,
 				A2E7B0271D0D73020087C8B9 /* RSMasterTableView.m */,
+				A2C491311D0DC34D00895E36 /* SVPullToRefresh */,
 				A2E7B02D1D0D732D0087C8B9 /* RSTableViewDataSource */,
 			);
 			name = RSMasterTableView;
@@ -113,18 +125,6 @@
 			);
 			path = RSTableViewDataSource;
 			sourceTree = "<group>";
-		};
-		A2E7B0311D0D73D40087C8B9 /* SVPullToRefresh */ = {
-			isa = PBXGroup;
-			children = (
-				A2E7B0321D0D73D40087C8B9 /* SVPullToRefresh.h */,
-				A2E7B0331D0D73D40087C8B9 /* UIScrollView+SVInfiniteScrolling.h */,
-				A2E7B0341D0D73D40087C8B9 /* UIScrollView+SVInfiniteScrolling.m */,
-				A2E7B0351D0D73D40087C8B9 /* UIScrollView+SVPullToRefresh.h */,
-				A2E7B0361D0D73D40087C8B9 /* UIScrollView+SVPullToRefresh.m */,
-			);
-			path = SVPullToRefresh;
-			sourceTree = SOURCE_ROOT;
 		};
 /* End PBXGroup section */
 
@@ -198,8 +198,8 @@
 			files = (
 				A2E7B0161D0D72D30087C8B9 /* ViewController.m in Sources */,
 				A2E7B0131D0D72D30087C8B9 /* AppDelegate.m in Sources */,
-				A2E7B0371D0D73D40087C8B9 /* UIScrollView+SVInfiniteScrolling.m in Sources */,
-				A2E7B0381D0D73D40087C8B9 /* UIScrollView+SVPullToRefresh.m in Sources */,
+				A2C491371D0DC34D00895E36 /* UIScrollView+SVInfiniteScrolling.m in Sources */,
+				A2C491381D0DC34D00895E36 /* UIScrollView+SVPullToRefresh.m in Sources */,
 				A2E7B0281D0D73020087C8B9 /* RSMasterTableView.m in Sources */,
 				A2E7B0101D0D72D30087C8B9 /* main.m in Sources */,
 				A2E7B0301D0D732D0087C8B9 /* RSTableViewDataSource.m in Sources */,
@@ -349,6 +349,7 @@
 				A2E7B0241D0D72D30087C8B9 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
