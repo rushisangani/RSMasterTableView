@@ -26,7 +26,7 @@
     
     __weak typeof(self) weakSelf = self;
     
-    // setup tableView
+    /* setup tableView */
     
     [self.tableView setupTableViewCellConfiguration:^(id cell, id object, NSIndexPath *indexPath) {
         [weakSelf setData:object forCell:cell atIndexPath:indexPath];
@@ -34,13 +34,13 @@
     } forCellIdentifier:@"cell"];
     
     
-    // enable pull to refresh
+    /* enable pull to refresh */
     
     [self.tableView enablePullToRefreshWithActionHandler:^{
         [weakSelf fetchDataFromServer];
     }];
     
-    // enable infinte scrolling
+    /* enable infinte scrolling */
     
     [self.tableView enableInfiniteScrollingWithActionHandler:^{
         [weakSelf fetchDataFromServer];
