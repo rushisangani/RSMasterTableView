@@ -30,14 +30,13 @@
 
 /* public methods */
 
-/* tableView with single section  */
+/* tableView configuration  */
 
 -(void)setupTableViewCellConfiguration:(UITableViewCellConfiguration)cellConfigurationBlock forCellIdentifier:(NSString *)cellIdentifier;
 
-/* tableView with multiple sections */
+/* tableView with multiple seciton */
 
--(void)setupTableViewSectionConfiguration:(UITableViewSectionConfiguration)sectionConfigurationBlock cellConfiguration:(UITableViewCellConfiguration)cellConfigurationBlock forCellIdentifier:(NSString *)cellIdentifier;
-
+-(void)setupTableViewWithMultipleSections:(UITableViewCellConfiguration)cellConfigurationBlock forCellIdentifier:(NSString *)cellIdentifier;
 
 /* Pull To Refresh */
 
@@ -60,9 +59,13 @@
 
 /* fetch data completion */
 
--(void)didCompleteFetchData:(NSArray *)dataArray withTotalCount:(NSUInteger)totalCount;     // To be called for table with single section
+/* To be called for table with single section */
 
--(void)didCompleteFetchDataWithSections:(NSDictionary *)dataDictionary;                     // To be called for table with multiple section
+-(void)didCompleteFetchData:(NSArray *)dataArray withTotalCount:(NSUInteger)totalCount;
+
+/* To be called for table with multiple section */
+
+-(void)didCompleteFetchDataWithSections:(NSDictionary *)dataDictionary andTotalCount:(NSUInteger)totalCount;
 
 
 /* fetch data failure */

@@ -26,15 +26,20 @@
 #import <UIKit/UIKit.h>
 
 typedef void (^UITableViewCellConfiguration)(id cell, id object, NSIndexPath *indexPath);
-typedef void (^UITableViewSectionConfiguration)(id object, NSIndexPath *indexPath);
 
 @interface RSTableViewDataSource : NSObject <UITableViewDataSource>
 
 /* public methods */
 
--(id)initWithArray:(NSMutableArray *)dataArray cellIdentifer:(NSString *)cellIdentifier andCellConfiguration:(UITableViewCellConfiguration)cellConfigurationBlock;
+/* initialize with array for single tableView section */
 
--(id)initWitDictionary:(NSMutableDictionary *)dataDictionary cellIdentifer:(NSString *)cellIdentifier sectionConfiguration:(UITableViewSectionConfiguration)sectionConfigurationBlock andCellConfiguration:(UITableViewCellConfiguration)cellConfigurationBlock;
+-(instancetype)initWithArray:(NSMutableArray *)dataArray cellIdentifer:(NSString *)cellIdentifier andCellConfiguration:(UITableViewCellConfiguration)cellConfigurationBlock;
+
+/* initialize with dictionary for multiple tableView section, where section title will be key of each item in dictionary and section data will be the array object in dictionary associated with the key */
+
+-(instancetype)initWitDictionary:(NSMutableDictionary *)dataDictionary cellIdentifer:(NSString *)cellIdentifier  andCellConfiguration:(UITableViewCellConfiguration)cellConfigurationBlock;
+
+/* get object at indexPath */
 
 -(id)objectAtIndexPath:(NSIndexPath *)indexPath;
 

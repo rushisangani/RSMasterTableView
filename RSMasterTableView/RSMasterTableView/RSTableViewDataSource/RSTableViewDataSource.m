@@ -32,16 +32,13 @@
 /* cell configuration block */
 @property (nonatomic, copy) void(^TableViewCellConfiguration)(id cell, id object, NSIndexPath *indexPath);
 
-/* section configuration block */
-@property (nonatomic, copy) void(^TableViewSectionConfiguration)(id object, NSIndexPath *indexPath);
-
 @end
 
 @implementation RSTableViewDataSource
 
 #pragma mark- Public methods
 
--(id)initWithArray:(NSMutableArray *)dataArray cellIdentifer:(NSString *)cellIdentifier andCellConfiguration:(UITableViewCellConfiguration)cellConfigurationBlock {
+-(instancetype)initWithArray:(NSMutableArray *)dataArray cellIdentifer:(NSString *)cellIdentifier andCellConfiguration:(UITableViewCellConfiguration)cellConfigurationBlock {
     
     self = [super init];
     if(self){
@@ -53,13 +50,12 @@
     return self;
 }
 
-- (id)initWitDictionary:(NSMutableDictionary *)dataDictionary cellIdentifer:(NSString *)cellIdentifier sectionConfiguration:(UITableViewSectionConfiguration)sectionConfigurationBlock andCellConfiguration:(UITableViewCellConfiguration)cellConfigurationBlock {
+-(instancetype)initWitDictionary:(NSMutableDictionary *)dataDictionary cellIdentifer:(NSString *)cellIdentifier andCellConfiguration:(UITableViewCellConfiguration)cellConfigurationBlock {
     
     self = [super init];
     if(self){
         
         self.dataDictionary = dataDictionary;
-        self.TableViewSectionConfiguration = [sectionConfigurationBlock copy];
         self.cellIdentifier = cellIdentifier;
         self.TableViewCellConfiguration = [cellConfigurationBlock copy];
     }
@@ -94,13 +90,17 @@
     return self.dataArray.count;
 }
 
+- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
+
+    if([self isSectionAvailable]){
+        return [self sectionTitleAtIndex:section];
+    }
+    return nil;
+}
+
 -(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     
     UITableViewCell *cell = (UITableViewCell *)[tableView dequeueReusableCellWithIdentifier:self.cellIdentifier];
-    
-    if(self.TableViewSectionConfiguration){
-        self.TableViewSectionConfiguration([self sectionTitleAtIndex:indexPath.section], indexPath);
-    }
     
     if(self.TableViewCellConfiguration){
         
@@ -114,7 +114,7 @@
 #pragma mark- Private methods
 
 -(BOOL)isSectionAvailable {
-    return (self.TableViewSectionConfiguration != nil);
+    return (self.dataDictionary != nil && self.dataArray == nil);
 }
 
 -(NSString *)sectionTitleAtIndex:(NSUInteger)index {
