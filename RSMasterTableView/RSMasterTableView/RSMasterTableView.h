@@ -24,12 +24,20 @@
 
 #import <UIKit/UIKit.h>
 #import "RSTableViewDataSource.h"
+#import "SVPullToRefresh.h"
 
 @interface RSMasterTableView : UITableView
 
 /* public methods */
 
+/* tableView with single section  */
+
 -(void)setupTableViewCellConfiguration:(UITableViewCellConfiguration)cellConfigurationBlock forCellIdentifier:(NSString *)cellIdentifier;
+
+/* tableView with multiple sections */
+
+-(void)setupTableViewSectionConfiguration:(UITableViewSectionConfiguration)sectionConfigurationBlock cellConfiguration:(UITableViewCellConfiguration)cellConfigurationBlock forCellIdentifier:(NSString *)cellIdentifier;
+
 
 /* Pull To Refresh */
 
@@ -41,15 +49,21 @@
 
 /* properties */
 
-@property (nonatomic, strong) RSTableViewDataSource *tableViewDataSource;    // DataSource for TableView
+@property (nonatomic, strong) RSTableViewDataSource *tableViewDataSource;   // DataSource for TableView
 
-@property (nonatomic, strong) NSString *noDataFoundMessage;     // message to be shown when no data found
+@property (nonatomic, strong) NSString *noDataFoundMessage;                 // message to be shown when no data found
 
-@property (nonatomic, strong) NSMutableArray *dataSourceArray;  // dataSource array for TableView
+@property (nonatomic, strong) NSMutableArray *dataSourceArray;              // dataSource array for TableView with single section
+
+@property (nonatomic, strong) NSMutableDictionary *dataSourceDictionary;    // dataSource dictionary that contains key as a 'Section Title' and value as an array for that section
+
 
 /* fetch data completion */
 
--(void)didCompleteFetchData:(NSArray *)dataArray withTotalCount:(NSUInteger)totalCount;
+-(void)didCompleteFetchData:(NSArray *)dataArray withTotalCount:(NSUInteger)totalCount;     // To be called for table with single section
+
+-(void)didCompleteFetchDataWithSections:(NSDictionary *)dataDictionary;                     // To be called for table with multiple section
+
 
 /* fetch data failure */
 

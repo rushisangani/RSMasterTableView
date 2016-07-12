@@ -22,10 +22,7 @@
 // THE SOFTWARE.
 
 #import "RSMasterTableView.h"
-#import "SVPullToRefresh.h"
 
-static NSUInteger kDefaultStartIndex = 0;
-static NSUInteger kDefaultRecordsPerPage = 20;
 static NSString   *kDefaultNoDataFoundMessage = @"No data found";
 
 @interface RSMasterTableView ()
@@ -74,6 +71,13 @@ static NSString   *kDefaultNoDataFoundMessage = @"No data found";
     self.dataSource = self.tableViewDataSource;
 }
 
+- (void)setupTableViewSectionConfiguration:(UITableViewSectionConfiguration)sectionConfigurationBlock cellConfiguration:(UITableViewCellConfiguration)cellConfigurationBlock forCellIdentifier:(NSString *)cellIdentifier {
+    
+    self.tableViewDataSource = [[RSTableViewDataSource alloc] initWitDictionary:self.dataSourceDictionary cellIdentifer:cellIdentifier sectionConfiguration:sectionConfigurationBlock andCellConfiguration:cellConfigurationBlock];
+    
+    self.dataSource = self.tableViewDataSource;
+}
+
 - (void)didCompleteFetchData:(NSArray *)dataArray withTotalCount:(NSUInteger)totalCount {
     
     if(dataArray.count > 0 && self.isPulltoRefershON) {
@@ -87,7 +91,12 @@ static NSString   *kDefaultNoDataFoundMessage = @"No data found";
     int currentRow = (int)self.dataSourceArray.count;
     
     // if no more result then not show infinite scrolling
-    self.showsInfiniteScrolling = (self.startIndex >= self.totalCount) ? NO : YES;
+    if (self.startIndex >= self.totalCount || dataArray.count < self.recordsPerPage) {
+        self.showsInfiniteScrolling = NO;
+    }
+    else {
+        self.showsInfiniteScrolling = YES;
+    }
     
     // add new data and reload tableView
     [self.dataSourceArray addObjectsFromArray:dataArray];
@@ -103,6 +112,16 @@ static NSString   *kDefaultNoDataFoundMessage = @"No data found";
     // clear the pull to refresh & infinite scroll
     self.isPulltoRefershON = NO;
     [self stopAnimation];
+}
+
+- (void)didCompleteFetchDataWithSections:(NSDictionary *)dataDictionary withTotalCount:(NSUInteger)totalCount {
+    
+    if(dataDictionary.count > 0 && self.isPulltoRefershON) {
+        [self.dataSourceDictionary removeAllObjects]; // remove old data
+    }
+    
+    // get total count and set new start index
+    self.totalCount = totalCount;
 }
 
 - (void)didFailToFetchdata {
@@ -212,6 +231,14 @@ static NSString   *kDefaultNoDataFoundMessage = @"No data found";
         _dataSourceArray = [[NSMutableArray alloc] init];
     }
     return _dataSourceArray;
+}
+
+- (NSMutableDictionary *)dataSourceDictionary {
+    
+    if(!_dataSourceDictionary){
+        _dataSourceDictionary = [[NSMutableDictionary alloc] init];
+    }
+    return _dataSourceDictionary;
 }
 
 -(void)setNoDataFoundMessage:(NSString *)noDataFoundMessage {

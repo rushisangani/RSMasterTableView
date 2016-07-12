@@ -26,12 +26,15 @@
 #import <UIKit/UIKit.h>
 
 typedef void (^UITableViewCellConfiguration)(id cell, id object, NSIndexPath *indexPath);
+typedef void (^UITableViewSectionConfiguration)(id object, NSIndexPath *indexPath);
 
 @interface RSTableViewDataSource : NSObject <UITableViewDataSource>
 
 /* public methods */
 
 -(id)initWithArray:(NSMutableArray *)dataArray cellIdentifer:(NSString *)cellIdentifier andCellConfiguration:(UITableViewCellConfiguration)cellConfigurationBlock;
+
+-(id)initWitDictionary:(NSMutableDictionary *)dataDictionary cellIdentifer:(NSString *)cellIdentifier sectionConfiguration:(UITableViewSectionConfiguration)sectionConfigurationBlock andCellConfiguration:(UITableViewCellConfiguration)cellConfigurationBlock;
 
 -(id)objectAtIndexPath:(NSIndexPath *)indexPath;
 
