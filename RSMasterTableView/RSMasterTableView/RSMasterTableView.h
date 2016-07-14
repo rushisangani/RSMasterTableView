@@ -32,7 +32,7 @@
 
 /* tableView configuration  */
 
--(void)setupTableViewCellConfiguration:(UITableViewCellConfiguration)cellConfigurationBlock forCellIdentifier:(NSString *)cellIdentifier;
+-(void)setupTableViewWithCellConfiguration:(UITableViewCellConfiguration)cellConfigurationBlock forCellIdentifier:(NSString *)cellIdentifier;
 
 /* tableView with multiple seciton */
 
@@ -52,9 +52,7 @@
 
 @property (nonatomic, strong) NSString *noDataFoundMessage;                 // message to be shown when no data found
 
-@property (nonatomic, strong) NSMutableArray *dataSourceArray;              // dataSource array for TableView with single section
-
-@property (nonatomic, strong) NSMutableDictionary *dataSourceDictionary;    // dataSource dictionary that contains key as a 'Section Title' and value as an array for that section
+@property (nonatomic, strong) NSMutableArray *dataSourceArray;              // dataSource array for TableView
 
 
 /* fetch data completion */
@@ -63,14 +61,15 @@
 
 -(void)didCompleteFetchData:(NSArray *)dataArray withTotalCount:(NSUInteger)totalCount;
 
-/* To be called for table with multiple section */
-
--(void)didCompleteFetchDataWithSections:(NSDictionary *)dataDictionary andTotalCount:(NSUInteger)totalCount;
-
-
 /* fetch data failure */
 
 -(void)didFailToFetchdata;
+
+
+/* get object */
+
+-(id)objectAtIndexPath:(NSIndexPath *)indexPath;
+
 
 /* Paging properties */
 
@@ -78,5 +77,8 @@
 @property (nonatomic, assign) NSUInteger recordsPerPage;
 @property (nonatomic, assign) NSUInteger totalCount;
 
+/* ignore total count if server is no sending total count */
+
+@property (nonatomic, assign) BOOL ignoreTotalCount;
 
 @end

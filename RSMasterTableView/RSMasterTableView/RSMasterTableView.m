@@ -24,8 +24,8 @@
 #import "RSMasterTableView.h"
 
 static NSString   *kDefaultNoDataFoundMessage = @"No data found";
-static CGFloat    kDefaultStartIndex = 1;
-static CGFloat    kDefaultRecordsPerPage = 20;
+static NSUInteger kDefaultStartIndex                = 1;
+static NSUInteger kDefaultRecordsPerPage            = 20;
 
 @interface RSMasterTableView ()
 {
@@ -66,7 +66,7 @@ static CGFloat    kDefaultRecordsPerPage = 20;
 
 #pragma mark- Public methods
 
--(void)setupTableViewCellConfiguration:(UITableViewCellConfiguration)cellConfigurationBlock forCellIdentifier:(NSString *)cellIdentifier {
+-(void)setupTableViewWithCellConfiguration:(UITableViewCellConfiguration)cellConfigurationBlock forCellIdentifier:(NSString *)cellIdentifier {
     
     self.tableViewDataSource = [[RSTableViewDataSource alloc] initWithArray:self.dataSourceArray cellIdentifer:cellIdentifier andCellConfiguration:cellConfigurationBlock];
     
@@ -75,115 +75,55 @@ static CGFloat    kDefaultRecordsPerPage = 20;
 
 - (void)setupTableViewWithMultipleSections:(UITableViewCellConfiguration)cellConfigurationBlock forCellIdentifier:(NSString *)cellIdentifier {
  
-    self.tableViewDataSource = [[RSTableViewDataSource alloc] initWitDictionary:self.dataSourceDictionary cellIdentifer:cellIdentifier andCellConfiguration:cellConfigurationBlock];
+    self.tableViewDataSource = [[RSTableViewDataSource alloc] initWitSections:self.dataSourceArray cellIdentifer:cellIdentifier andCellConfiguration:cellConfigurationBlock];
     
     self.dataSource = self.tableViewDataSource;
 }
 
 - (void)didCompleteFetchData:(NSArray *)dataArray withTotalCount:(NSUInteger)totalCount {
     
+    // remove old data on pull to refresh
     if(dataArray.count > 0 && self.isPulltoRefershON) {
-        [self.dataSourceArray removeAllObjects];    // remove old data
-    }
-    
-    // get total count and set new start index
-    self.totalCount = totalCount;
-    self.startIndex += dataArray.count;
-    
-    int currentRow = (int)self.dataSourceArray.count;
-    
-    // if no more result then not show infinite scrolling
-    if (self.startIndex >= self.totalCount || dataArray.count < self.recordsPerPage) {
-        self.showsInfiniteScrolling = NO;
-    }
-    else {
-        self.showsInfiniteScrolling = YES;
-    }
-    
-    // add new data and reload tableView
-    [self.dataSourceArray addObjectsFromArray:dataArray];
-    
-    // show no data found message if no data
-    if(self.dataSourceArray.count == 0){
-        self.lblNoDataFound.hidden = NO;
-    }
-    else{
-        [self reloadTableView:currentRow];
-    }
-    
-    // clear the pull to refresh & infinite scroll
-    self.isPulltoRefershON = NO;
-    [self stopAnimation];
-}
-
-- (void)didCompleteFetchDataWithSections:(NSDictionary *)dataDictionary andTotalCount:(NSUInteger)totalCount {
-    
-    if(dataDictionary.count > 0 && self.isPulltoRefershON) {
-        [self.dataSourceDictionary removeAllObjects]; // remove old data
+        [self.dataSourceArray removeAllObjects];
     }
     
     // get total count
-    self.totalCount = totalCount;
-    
-    NSUInteger fetchedRecords = 0;
-    
-    for (NSString *key in [dataDictionary allKeys]) {
-        fetchedRecords += [[dataDictionary objectForKey:key] count];
-    }
-    
-    // update start index
-    self.startIndex += fetchedRecords;
-    
-    // if no more result then not show infinite scrolling
-    if (self.startIndex >= self.totalCount || fetchedRecords < self.recordsPerPage) {
-        self.showsInfiniteScrolling = NO;
+    self.totalCount = (!_ignoreTotalCount) ? totalCount : 0;
+     
+    if(self.tableViewDataSource.isSectionAvailable){
+        
+        // perform insertion for multiple section tableview
+        
+        NSMutableArray * array = [NSMutableArray arrayWithArray:dataArray];
+        [self didCompleteFetchDataWithSections:array withTotalCount:totalCount];
     }
     else {
-        self.showsInfiniteScrolling = YES;
-    }
-    
-    // check if new data contains same section title as last section title
-    
-    NSString *lastSectionKey = [[self.dataSourceDictionary allKeys] lastObject];
-    NSString *newDataKey = [[dataDictionary allKeys] firstObject];
-    
-    NSUInteger currentSection = 0, newStartIndex = 0, endIndex = 0, newSectionIndex = 0, newLastSectionIndex = 0;
-    BOOL isDataTobeAddInLastSection = NO;
-    
-    if([lastSectionKey isEqualToString:newDataKey]){
-    
-        isDataTobeAddInLastSection = YES;
         
-        // get current section index
-        currentSection = [self.dataSourceDictionary allKeys].count-1;
+        // update start index
+        self.startIndex += dataArray.count;
         
-        // get last row index in current section from where we'll add more rows
-        newStartIndex = [[self.dataSourceDictionary objectForKey:lastSectionKey] count];
-        
-        // get count for new records for the same section
-        endIndex = newStartIndex + [[dataDictionary objectForKey:newDataKey] count];
-    }
-    
-    // get new section index
-    newSectionIndex = [self.dataSourceDictionary allKeys].count;
-    
-    // get count for new sections
-    newLastSectionIndex = newSectionIndex + [[dataDictionary allKeys] count];
-    
-    // add new data and reload tableView
-    [self.dataSourceDictionary addEntriesFromDictionary:dataDictionary];
-    
-    // show no data found message if no data
-    if(self.dataSourceDictionary.count == 0){
-        self.lblNoDataFound.hidden = NO;
-    }
-    else{
-        
-        if(isDataTobeAddInLastSection){
-            [self insertRowsInSection:currentSection fromStartIndex:newStartIndex toEndIndex:endIndex];
+        // if no more result then not show infinite scrolling
+        if ((!_ignoreTotalCount && self.startIndex >= self.totalCount) || dataArray.count < self.recordsPerPage) {
+            self.showsInfiniteScrolling = NO;
+        }
+        else {
+            self.showsInfiniteScrolling = YES;
         }
         
-        [self insertNewSectionsFromStartIndex:newSectionIndex toEndIndex:newLastSectionIndex];
+        // get startRow and endRow
+        NSUInteger startRow = self.dataSourceArray.count;
+        NSUInteger endRow = startRow + dataArray.count;
+        
+        // add data to dataSource array first
+        [self.dataSourceArray addObjectsFromArray:dataArray];
+        
+        // show no data found message if no data
+        if(self.dataSourceArray.count == 0){
+            self.lblNoDataFound.hidden = NO;
+        }
+        else{
+            [self insertRowsInSection:0 fromStartIndex:startRow toEndIndex:endRow];
+        }
     }
     
     // clear the pull to refresh & infinite scroll
@@ -195,37 +135,87 @@ static CGFloat    kDefaultRecordsPerPage = 20;
     [self stopAnimation];
 }
 
+- (id)objectAtIndexPath:(NSIndexPath *)indexPath {
+    return [self.tableViewDataSource objectAtIndexPath:indexPath];
+}
+
 #pragma mark- Custom methods
 
--(void)reloadTableView:(int)startingRow {
-
-    // hide backgorund label
-    self.lblNoDataFound.hidden = YES;
+-(void)didCompleteFetchDataWithSections:(NSMutableArray *)dataArray withTotalCount:(NSUInteger)totalCount {
     
-    // direct reload if pull to refresh
-    if(self.isPulltoRefershON){
-        [self reloadData];
+    // update start index
+    NSUInteger fetchedRecords = 0;
+    
+    for (NSDictionary *dict in dataArray) {
+        
+        NSString *key = [[dict allKeys] firstObject];
+        fetchedRecords += [[dict objectForKey:key] count];
+    }
+    self.startIndex += fetchedRecords;
+    
+    // if no more result then not show infinite scrolling
+    
+    if ((!_ignoreTotalCount && self.startIndex >= self.totalCount) || fetchedRecords < self.recordsPerPage) {
+        self.showsInfiniteScrolling = NO;
+    }
+    else {
+        self.showsInfiniteScrolling = YES;
     }
     
-    // insert new rows for infinite scrolling
-    else {
-     
-        // add new items after last row
-        NSUInteger endingRow = [self.dataSourceArray count];
+    // get startRow, endRow, startSection and endSection to insert data
+    
+    NSMutableDictionary *currentSectionDict = [NSMutableDictionary dictionaryWithDictionary:[self.dataSourceArray lastObject]];     // current section dictionary
+    NSString *sectionKey = [[currentSectionDict allKeys] firstObject];                                                              // current section title as key
+    NSMutableArray *currentSectionData = [currentSectionDict objectForKey:sectionKey];                                              // current section data array
+    
+    NSMutableDictionary *newSectionDict = [NSMutableDictionary dictionaryWithDictionary:[dataArray firstObject]];                   // new section dictionary
+    NSString *newSectionKey = [[newSectionDict allKeys] firstObject];                                                               // new section title as key
+    NSMutableArray *newSectionData = [newSectionDict objectForKey:newSectionKey];                                                   // new section data array
+    
+    NSUInteger startRow = 0;
+    NSUInteger endRow = 0;
+    NSUInteger startSection = 0;
+    NSUInteger endSection = 0;
+    
+    if ([sectionKey isEqualToString:newSectionKey]) {
         
-        NSMutableArray *indexPaths = [NSMutableArray array];
+        // add data in same section
         
-        for (; startingRow < endingRow; startingRow++) {
-            [indexPaths addObject:[NSIndexPath indexPathForRow:startingRow inSection:0]];
-        }
+        startSection = self.dataSourceArray.count - 1;
         
-        // insert new rows
-        if(indexPaths.count > 0){
-            
-            [self beginUpdates];
-            [self insertRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationNone];
-            [self endUpdates];
-        }
+        startRow = currentSectionData.count;
+        endRow = startRow + newSectionData.count;
+        
+        // add data to existing dataSource in current section
+        [currentSectionData addObjectsFromArray:newSectionData];
+        
+        // update to dictionary
+        [currentSectionDict setObject:currentSectionData forKey:sectionKey];
+        
+        // reflect changes in dataSource array
+        [self.dataSourceArray replaceObjectAtIndex:startSection withObject:currentSectionDict];
+        
+        // insert row in same section
+        [self insertRowsInSection:startSection fromStartIndex:startRow toEndIndex:endRow];
+        
+        // remove first object from newDataAray because we've already added to the current section
+        [dataArray removeObjectAtIndex:0];
+    }
+    
+    // create new sections
+    
+    startSection = self.dataSourceArray.count;
+    endSection = startSection + dataArray.count;
+    
+    // add data to dataSource array first
+    [self.dataSourceArray addObjectsFromArray:dataArray];
+    
+    // show no data found message if no data
+    if(self.dataSourceArray.count == 0){
+        self.lblNoDataFound.hidden = NO;
+    }
+    else{
+        [self insertNewSectionsFromStartIndex:startSection toEndIndex:endSection];
     }
 }
 
@@ -239,7 +229,7 @@ static CGFloat    kDefaultRecordsPerPage = 20;
         [self reloadData];
     }
     
-    // insert new rows and sections for infinite scrolling
+    // insert new rows for infinite scrolling
     else {
         
         NSMutableArray *indexPaths = [NSMutableArray array];
@@ -248,7 +238,7 @@ static CGFloat    kDefaultRecordsPerPage = 20;
             [indexPaths addObject:[NSIndexPath indexPathForRow:startIndex inSection:section]];
         }
         
-        // insert new rows
+        // insert new rows if not 0
         if(indexPaths.count > 0){
             
             [self beginUpdates];
@@ -272,12 +262,14 @@ static CGFloat    kDefaultRecordsPerPage = 20;
         
         // insert new sections
         
-        [self beginUpdates];
-        for (; startIndex < endIndex; startIndex++) {
+        if(startIndex < endIndex){
             
-            [self insertSections:[NSIndexSet indexSetWithIndex:startIndex] withRowAnimation:UITableViewRowAnimationNone];
+            [self beginUpdates];
+            for (; startIndex < endIndex; startIndex++) {
+                [self insertSections:[NSIndexSet indexSetWithIndex:startIndex] withRowAnimation:UITableViewRowAnimationNone];
+            }
+            [self endUpdates];
         }
-        [self endUpdates];
     }
 }
 
@@ -285,16 +277,6 @@ static CGFloat    kDefaultRecordsPerPage = 20;
     
     [self.pullToRefreshView stopAnimating];
     [self.infiniteScrollingView stopAnimating];
-}
-
--(BOOL)isRecordsTobeAddedInCurrentSectionFromData:(NSDictionary *)dictionary {
-    
-    /* check if new data contains same section title as last section title */
-    
-    NSString *lastSectionKey = [[self.dataSourceDictionary allKeys] lastObject];
-    NSString *newDataKey = [[dictionary allKeys] firstObject];
-    
-    return ([lastSectionKey isEqualToString:newDataKey]);
 }
 
 #pragma mark- Pull To Refresh
@@ -360,14 +342,6 @@ static CGFloat    kDefaultRecordsPerPage = 20;
         _dataSourceArray = [[NSMutableArray alloc] init];
     }
     return _dataSourceArray;
-}
-
-- (NSMutableDictionary *)dataSourceDictionary {
-    
-    if(!_dataSourceDictionary){
-        _dataSourceDictionary = [[NSMutableDictionary alloc] init];
-    }
-    return _dataSourceDictionary;
 }
 
 -(void)setNoDataFoundMessage:(NSString *)noDataFoundMessage {

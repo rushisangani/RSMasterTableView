@@ -26,7 +26,6 @@
 @interface RSTableViewDataSource ()
 
 @property (nonatomic, strong) NSMutableArray *dataArray;                // dataSource array
-@property (nonatomic, strong) NSMutableDictionary *dataDictionary;      // data dictionary
 @property (nonatomic, strong) NSString *cellIdentifier;                 // cell identifier
 
 /* cell configuration block */
@@ -50,21 +49,17 @@
     return self;
 }
 
--(instancetype)initWitDictionary:(NSMutableDictionary *)dataDictionary cellIdentifer:(NSString *)cellIdentifier andCellConfiguration:(UITableViewCellConfiguration)cellConfigurationBlock {
+- (instancetype)initWitSections:(NSMutableArray *)sectionsArray cellIdentifer:(NSString *)cellIdentifier andCellConfiguration:(UITableViewCellConfiguration)cellConfigurationBlock {
     
-    self = [super init];
-    if(self){
-        
-        self.dataDictionary = dataDictionary;
-        self.cellIdentifier = cellIdentifier;
-        self.TableViewCellConfiguration = [cellConfigurationBlock copy];
-    }
+    self = [self initWithArray:sectionsArray cellIdentifer:cellIdentifier andCellConfiguration:cellConfigurationBlock];
+    self.isSectionAvailable = YES;
+    
     return self;
 }
 
 -(id)objectAtIndexPath:(NSIndexPath *)indexPath {
     
-    if([self isSectionAvailable]){
+    if(self.isSectionAvailable){
         
         NSArray *sectionData = [self sectionDataArrayAtIndex:indexPath.section];
         return [sectionData objectAtIndex:indexPath.row];
@@ -76,15 +71,15 @@
 
 -(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
     
-    if([self isSectionAvailable]){
-        return [self.dataDictionary allKeys].count;
+    if(self.isSectionAvailable){
+        return self.dataArray.count;
     }
     return 1;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     
-    if([self isSectionAvailable]){
+    if(self.isSectionAvailable){
         return [self sectionDataArrayAtIndex:section].count;
     }
     return self.dataArray.count;
@@ -92,7 +87,7 @@
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
 
-    if([self isSectionAvailable]){
+    if(self.isSectionAvailable){
         return [self sectionTitleAtIndex:section];
     }
     return nil;
@@ -113,18 +108,24 @@
 
 #pragma mark- Private methods
 
--(BOOL)isSectionAvailable {
-    return (self.dataDictionary != nil && self.dataArray == nil);
-}
-
 -(NSString *)sectionTitleAtIndex:(NSUInteger)index {
-    return [[self.dataDictionary allKeys] objectAtIndex:index];
+    
+    if(self.dataArray.count > 0){
+        
+        NSDictionary *dataDict = [self.dataArray objectAtIndex:index];
+        return [[dataDict allKeys] firstObject];
+    }
+    return @"";
 }
 
 -(NSArray *)sectionDataArrayAtIndex:(NSInteger)index {
     
-    NSString *key = [self sectionTitleAtIndex:index];
-    return [self.dataDictionary objectForKey:key];
+    if(self.dataArray.count > 0){
+        
+        NSString *sectionKey = [self sectionTitleAtIndex:index];
+        return [[self.dataArray objectAtIndex:index] objectForKey:sectionKey];
+    }
+    return @[];
 }
 
 @end

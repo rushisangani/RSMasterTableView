@@ -28,7 +28,7 @@
     
     /* setup tableView */
     
-    [self.tableView setupTableViewCellConfiguration:^(id cell, id object, NSIndexPath *indexPath) {
+    [self.tableView setupTableViewWithCellConfiguration:^(id cell, id object, NSIndexPath *indexPath) {
         [weakSelf setData:object forCell:cell atIndexPath:indexPath];
         
     } forCellIdentifier:@"cell"];

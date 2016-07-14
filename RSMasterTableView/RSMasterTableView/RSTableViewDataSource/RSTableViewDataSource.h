@@ -35,12 +35,17 @@ typedef void (^UITableViewCellConfiguration)(id cell, id object, NSIndexPath *in
 
 -(instancetype)initWithArray:(NSMutableArray *)dataArray cellIdentifer:(NSString *)cellIdentifier andCellConfiguration:(UITableViewCellConfiguration)cellConfigurationBlock;
 
-/* initialize with dictionary for multiple tableView section, where section title will be key of each item in dictionary and section data will be the array object in dictionary associated with the key */
+/* initialize with sections for multiple tableView section, where section title will be key of each dictionary and section data will be the array object associated with that key */
 
--(instancetype)initWitDictionary:(NSMutableDictionary *)dataDictionary cellIdentifer:(NSString *)cellIdentifier  andCellConfiguration:(UITableViewCellConfiguration)cellConfigurationBlock;
+-(instancetype)initWitSections:(NSMutableArray *)sectionsArray cellIdentifer:(NSString *)cellIdentifier  andCellConfiguration:(UITableViewCellConfiguration)cellConfigurationBlock;
 
 /* get object at indexPath */
 
 -(id)objectAtIndexPath:(NSIndexPath *)indexPath;
+
+
+/* properties */
+
+@property (nonatomic, assign) BOOL isSectionAvailable;     /* check if tableview is with multiple sections */
 
 @end
