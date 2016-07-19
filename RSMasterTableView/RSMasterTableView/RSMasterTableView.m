@@ -24,8 +24,9 @@
 #import "RSMasterTableView.h"
 
 static NSString   *kDefaultNoDataFoundMessage = @"No data found";
-static NSUInteger kDefaultStartIndex                = 1;
-static NSUInteger kDefaultRecordsPerPage            = 20;
+static NSUInteger kDefaultStartIndex          = 1;
+static NSUInteger kDefaultRecordsPerPage      = 20;
+static CGFloat    kDefaultLabelMargin         = 25;
 
 @interface RSMasterTableView ()
 {
@@ -35,6 +36,7 @@ static NSUInteger kDefaultRecordsPerPage            = 20;
 @property (nonatomic, copy) void(^infiniteScrollingActionHandler)(void);
 @property (nonatomic, assign) BOOL isPulltoRefershON;
 @property (nonatomic, strong) UILabel *lblNoDataFound;
+@property (nonatomic) CGRect labelFrame;
 
 @end
 
@@ -74,7 +76,7 @@ static NSUInteger kDefaultRecordsPerPage            = 20;
 }
 
 - (void)setupTableViewWithMultipleSections:(UITableViewCellConfiguration)cellConfigurationBlock forCellIdentifier:(NSString *)cellIdentifier {
- 
+    
     self.tableViewDataSource = [[RSTableViewDataSource alloc] initWitSections:self.dataSourceArray cellIdentifer:cellIdentifier andCellConfiguration:cellConfigurationBlock];
     
     self.dataSource = self.tableViewDataSource;
@@ -89,7 +91,7 @@ static NSUInteger kDefaultRecordsPerPage            = 20;
     
     // get total count
     self.totalCount = (!_ignoreTotalCount) ? totalCount : 0;
-     
+    
     if(self.tableViewDataSource.isSectionAvailable){
         
         // perform insertion for multiple section tableview
@@ -220,7 +222,7 @@ static NSUInteger kDefaultRecordsPerPage            = 20;
 }
 
 - (void)insertRowsInSection:(NSUInteger)section fromStartIndex:(NSUInteger)startIndex toEndIndex:(NSUInteger)endIndex {
- 
+    
     // hide backgorund label
     self.lblNoDataFound.hidden = YES;
     
@@ -282,7 +284,7 @@ static NSUInteger kDefaultRecordsPerPage            = 20;
 #pragma mark- Pull To Refresh
 
 -(void)enablePullToRefreshWithActionHandler:(void (^)(void))actionHandler {
-
+    
     self.pullToRefreshActionHandler = actionHandler;
     
     __weak typeof(self) weakSelf = self;
@@ -334,6 +336,12 @@ static NSUInteger kDefaultRecordsPerPage            = 20;
     }
 }
 
+- (void)layoutSubviews {
+    [super layoutSubviews];
+    
+    self.lblNoDataFound.frame = self.labelFrame;
+}
+
 #pragma mark- Setter / Getter
 
 -(NSMutableArray *)dataSourceArray{
@@ -361,15 +369,18 @@ static NSUInteger kDefaultRecordsPerPage            = 20;
 -(UILabel *)lblNoDataFound {
     
     if(!_lblNoDataFound){
-        
-        _lblNoDataFound = [[UILabel alloc] initWithFrame:self.frame];
+        _lblNoDataFound = [[UILabel alloc] initWithFrame:self.labelFrame];
         _lblNoDataFound.text = self.noDataFoundMessage;
-        _lblNoDataFound.font = [UIFont systemFontOfSize:16];
+        _lblNoDataFound.font = [UIFont systemFontOfSize:17];
         _lblNoDataFound.textAlignment = NSTextAlignmentCenter;
         _lblNoDataFound.numberOfLines = 0;
         _lblNoDataFound.hidden = YES;
     }
     return _lblNoDataFound;
+}
+
+-(CGRect)labelFrame {
+    return CGRectMake(self.frame.origin.x + kDefaultLabelMargin, self.frame.origin.y + kDefaultLabelMargin, self.frame.size.width - 2*kDefaultLabelMargin, self.frame.size.height - 2*kDefaultLabelMargin);
 }
 
 @end
