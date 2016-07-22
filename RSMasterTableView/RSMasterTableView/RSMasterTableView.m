@@ -32,8 +32,11 @@ static CGFloat    kDefaultLabelMargin         = 25;
 {
     NSString *_noDataFoundMessage;
 }
+
 @property (nonatomic, copy) void(^pullToRefreshActionHandler)(void);
 @property (nonatomic, copy) void(^infiniteScrollingActionHandler)(void);
+@property (nonatomic, copy) void(^refreshAllDataActionHandler)(void);
+
 @property (nonatomic, assign) BOOL isPulltoRefershON;
 @property (nonatomic, strong) UILabel *lblNoDataFound;
 @property (nonatomic) CGRect labelFrame;
@@ -139,6 +142,12 @@ static CGFloat    kDefaultLabelMargin         = 25;
 
 - (id)objectAtIndexPath:(NSIndexPath *)indexPath {
     return [self.tableViewDataSource objectAtIndexPath:indexPath];
+}
+
+- (void)refreshAllDataWithActionHandler:(void (^)(void))actionHandler {
+    
+    self.refreshAllDataActionHandler = actionHandler;
+    [self refreshAllData];
 }
 
 #pragma mark- Custom methods
@@ -333,6 +342,25 @@ static CGFloat    kDefaultLabelMargin         = 25;
         
         self.isPulltoRefershON = NO;
         self.infiniteScrollingActionHandler();
+    }
+}
+
+#pragma mark- Refresh all data
+
+-(void)refreshAllData {
+    
+    if(self.refreshAllDataActionHandler){
+        
+        // clear all data
+        [self.dataSourceArray removeAllObjects];
+        
+        // set startIndex to default
+        self.startIndex = kDefaultStartIndex;
+        
+        // once reset, allow the infinite scroll again
+        self.showsInfiniteScrolling = YES;
+        
+        self.refreshAllDataActionHandler();
     }
 }
 

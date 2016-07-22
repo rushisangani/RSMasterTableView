@@ -28,9 +28,8 @@
 
 @interface RSMasterTableView : UITableView
 
-/* public methods */
 
-/* tableView configuration  */
+/*****  tableView configuration  *******/
 
 -(void)setupTableViewWithCellConfiguration:(UITableViewCellConfiguration)cellConfigurationBlock forCellIdentifier:(NSString *)cellIdentifier;
 
@@ -46,16 +45,8 @@
 
 -(void)enableInfiniteScrollingWithActionHandler:(void(^)(void))actionHandler;
 
-/* properties */
 
-@property (nonatomic, strong) RSTableViewDataSource *tableViewDataSource;   // DataSource for TableView
-
-@property (nonatomic, strong) NSString *noDataFoundMessage;                 // message to be shown when no data found
-
-@property (nonatomic, strong) NSMutableArray *dataSourceArray;              // dataSource array for TableView
-
-
-/* fetch data completion */
+/***** fetch data completion *****/
 
 /* To be called for table with single section */
 
@@ -66,16 +57,31 @@
 -(void)didFailToFetchdata;
 
 
-/* get object */
+/****   get object  ****/
 
 -(id)objectAtIndexPath:(NSIndexPath *)indexPath;
 
 
-/* Paging properties */
+/**** refresh all data *******/
+
+-(void)refreshAllDataWithActionHandler:(void(^)(void))actionHandler;
+
+
+/****** properties  *******/
+
+@property (nonatomic, strong) RSTableViewDataSource *tableViewDataSource;   // DataSource for TableView
+
+@property (nonatomic, strong) NSString *noDataFoundMessage;                 // message to be shown when no data found
+
+@property (nonatomic, strong) NSMutableArray *dataSourceArray;              // dataSource array for TableView
+
+
+/**** Paging properties ******/
 
 @property (nonatomic, assign) NSUInteger startIndex;
 @property (nonatomic, assign) NSUInteger recordsPerPage;
 @property (nonatomic, assign) NSUInteger totalCount;
+
 
 /* ignore total count if server is no sending total count */
 
