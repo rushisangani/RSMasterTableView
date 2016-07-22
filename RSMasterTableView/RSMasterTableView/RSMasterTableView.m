@@ -354,6 +354,9 @@ static CGFloat    kDefaultLabelMargin         = 25;
         // clear all data
         [self.dataSourceArray removeAllObjects];
         
+        // reload once
+        [self reloadData];
+        
         // set startIndex to default
         self.startIndex = kDefaultStartIndex;
         
