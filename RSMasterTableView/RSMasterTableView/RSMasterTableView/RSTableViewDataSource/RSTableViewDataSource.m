@@ -25,7 +25,6 @@
 
 @interface RSTableViewDataSource ()
 
-@property (nonatomic, strong) NSMutableArray *dataArray;                // dataSource array
 @property (nonatomic, strong) NSString *cellIdentifier;                 // cell identifier
 
 /* cell configuration block */
@@ -52,26 +51,30 @@
 - (instancetype)initWitSections:(NSMutableArray *)sectionsArray cellIdentifer:(NSString *)cellIdentifier andCellConfiguration:(UITableViewCellConfiguration)cellConfigurationBlock {
     
     self = [self initWithArray:sectionsArray cellIdentifer:cellIdentifier andCellConfiguration:cellConfigurationBlock];
-    self.isSectionAvailable = YES;
+    self.isMultipleSections = YES;
     
     return self;
 }
 
 -(id)objectAtIndexPath:(NSIndexPath *)indexPath {
     
-    if(self.isSectionAvailable){
+    if(self.isMultipleSections){
         
         NSArray *sectionData = [self sectionDataArrayAtIndex:indexPath.section];
         return [sectionData objectAtIndex:indexPath.row];
     }
-    return [self.dataArray objectAtIndex:indexPath.row];
+    else {
+        if(self.dataArray.count > 0)
+            return [self.dataArray objectAtIndex:indexPath.row];
+    }
+    return nil;
 }
 
 #pragma mark- UITableView DataSource Methods
 
 -(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
     
-    if(self.isSectionAvailable){
+    if(self.isMultipleSections){
         return self.dataArray.count;
     }
     return 1;
@@ -79,7 +82,7 @@
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     
-    if(self.isSectionAvailable){
+    if(self.isMultipleSections){
         return [self sectionDataArrayAtIndex:section].count;
     }
     return self.dataArray.count;
@@ -87,7 +90,7 @@
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
 
-    if(self.isSectionAvailable){
+    if(self.isMultipleSections){
         return [self sectionTitleAtIndex:section];
     }
     return nil;
@@ -97,12 +100,16 @@
     
     UITableViewCell *cell = (UITableViewCell *)[tableView dequeueReusableCellWithIdentifier:self.cellIdentifier];
     
+    if(!cell){
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:self.cellIdentifier];
+    }
+    
     if(self.TableViewCellConfiguration){
         
         id object = [self objectAtIndexPath:indexPath];
         self.TableViewCellConfiguration(cell, object, indexPath);
     }
-    
+
     return cell;
 }
 

@@ -21,29 +21,33 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "RSMasterTableView.h"
+#import "RSTableView.h"
 
-static NSString   *kDefaultNoDataFoundMessage = @"No data found";
-static NSUInteger kDefaultStartIndex          = 1;
-static NSUInteger kDefaultRecordsPerPage      = 20;
-static CGFloat    kDefaultLabelMargin         = 25;
+static NSString   *kDefaultNoDataFoundMessage   = @"No data found.";
+static NSString   *kDefaultNoResultFoundMessage = @"No result found.";
 
-@interface RSMasterTableView ()
+@interface RSTableView () <UISearchBarDelegate>
 {
     NSString *_noDataFoundMessage;
+    BOOL isInfiniteScrollingEnabled;
 }
 
 @property (nonatomic, copy) void(^pullToRefreshActionHandler)(void);
 @property (nonatomic, copy) void(^infiniteScrollingActionHandler)(void);
 @property (nonatomic, copy) void(^refreshAllDataActionHandler)(void);
+@property (nonatomic, copy) void(^webSearchActionHandler)(NSString *searchString);
 
-@property (nonatomic, assign) BOOL isPulltoRefershON;
 @property (nonatomic, strong) UILabel *lblNoDataFound;
+@property (nonatomic, strong) UIActivityIndicatorView *indicatorView;
+
+@property (nonatomic, strong) NSString *searchPlaceHolder;
+@property (nonatomic, assign) BOOL isPulltoRefershON;
+@property (nonatomic, assign) BOOL isSearchON;
 @property (nonatomic) CGRect labelFrame;
 
 @end
 
-@implementation RSMasterTableView
+@implementation RSTableView
 @synthesize noDataFoundMessage = _noDataFoundMessage;
 
 #pragma mark- Init
@@ -63,6 +67,9 @@ static CGFloat    kDefaultLabelMargin         = 25;
     
     // set no data found label as background view
     [self setBackgroundView:self.lblNoDataFound];
+    
+    // add indicatorView
+    [self addSubview:self.indicatorView];
     
     self.startIndex = kDefaultStartIndex;
     self.recordsPerPage = kDefaultRecordsPerPage;
@@ -85,17 +92,19 @@ static CGFloat    kDefaultLabelMargin         = 25;
     self.dataSource = self.tableViewDataSource;
 }
 
+#pragma mark- Response handling
+
 - (void)didCompleteFetchData:(NSArray *)dataArray withTotalCount:(NSUInteger)totalCount {
     
-    // remove old data on pull to refresh
-    if(dataArray.count > 0 && self.isPulltoRefershON) {
+    // remove old data on pull to refresh and search
+    if(self.isPulltoRefershON || self.isSearchON) {
         [self.dataSourceArray removeAllObjects];
     }
     
     // get total count
     self.totalCount = (!_ignoreTotalCount) ? totalCount : 0;
     
-    if(self.tableViewDataSource.isSectionAvailable){
+    if(self.tableViewDataSource.isMultipleSections){
         
         // perform insertion for multiple section tableview
         
@@ -108,23 +117,29 @@ static CGFloat    kDefaultLabelMargin         = 25;
         self.startIndex += dataArray.count;
         
         // if no more result then not show infinite scrolling
+        BOOL infiniteScrolling = YES;
+        
         if ((!_ignoreTotalCount && self.startIndex >= self.totalCount) || dataArray.count < self.recordsPerPage) {
-            self.showsInfiniteScrolling = NO;
+            infiniteScrolling = NO;
         }
-        else {
-            self.showsInfiniteScrolling = YES;
-        }
+        
+        /* update flag only if infinite scrolling is enabled */
+        
+        if(isInfiniteScrollingEnabled)
+            self.showsInfiniteScrolling = infiniteScrolling;
         
         // get startRow and endRow
         NSUInteger startRow = self.dataSourceArray.count;
         NSUInteger endRow = startRow + dataArray.count;
         
         // add data to dataSource array first
+        
         [self.dataSourceArray addObjectsFromArray:dataArray];
         
         // show no data found message if no data
-        if(self.dataSourceArray.count == 0){
+        if(self.dataSourceArray.count == 0 && (dataArray == nil || dataArray.count == 0)){
             self.lblNoDataFound.hidden = NO;
+            [self reloadData];
         }
         else{
             [self insertRowsInSection:0 fromStartIndex:startRow toEndIndex:endRow];
@@ -146,8 +161,19 @@ static CGFloat    kDefaultLabelMargin         = 25;
 
 - (void)refreshAllDataWithActionHandler:(void (^)(void))actionHandler {
     
+    self.refreshAllDataActionHandler = nil;
     self.refreshAllDataActionHandler = actionHandler;
+    
     [self refreshAllData];
+}
+
+-(void)clearAllData {
+    
+    // clear all data
+    [self.dataSourceArray removeAllObjects];
+    
+    // reload tableview
+    [self reloadData];
 }
 
 #pragma mark- Custom methods
@@ -165,13 +191,17 @@ static CGFloat    kDefaultLabelMargin         = 25;
     self.startIndex += fetchedRecords;
     
     // if no more result then not show infinite scrolling
+    BOOL infiniteScrolling = YES;
     
     if ((!_ignoreTotalCount && self.startIndex >= self.totalCount) || fetchedRecords < self.recordsPerPage) {
-        self.showsInfiniteScrolling = NO;
+        infiniteScrolling = NO;
     }
-    else {
-        self.showsInfiniteScrolling = YES;
-    }
+    
+    /* update flag only if infinite scrolling is enabled */
+    
+    if(isInfiniteScrollingEnabled)
+        self.showsInfiniteScrolling = infiniteScrolling;
+    
     
     // get startRow, endRow, startSection and endSection to insert data
     
@@ -219,6 +249,7 @@ static CGFloat    kDefaultLabelMargin         = 25;
     endSection = startSection + dataArray.count;
     
     // add data to dataSource array first
+    
     [self.dataSourceArray addObjectsFromArray:dataArray];
     
     // show no data found message if no data
@@ -236,7 +267,7 @@ static CGFloat    kDefaultLabelMargin         = 25;
     self.lblNoDataFound.hidden = YES;
     
     // direct reload if pull to refresh
-    if(self.isPulltoRefershON){
+    if(self.isPulltoRefershON || self.isSearchON){
         [self reloadData];
     }
     
@@ -265,10 +296,9 @@ static CGFloat    kDefaultLabelMargin         = 25;
     self.lblNoDataFound.hidden = YES;
     
     // direct reload if pull to refresh
-    if(self.isPulltoRefershON){
+    if(self.isPulltoRefershON || self.isSearchON){
         [self reloadData];
     }
-    
     else {
         
         // insert new sections
@@ -284,23 +314,35 @@ static CGFloat    kDefaultLabelMargin         = 25;
     }
 }
 
+-(void)startAnimation {
+    
+    self.lblNoDataFound.hidden = YES;
+    [self.indicatorView startAnimating];
+}
+
 -(void)stopAnimation {
     
     [self.pullToRefreshView stopAnimating];
     [self.infiniteScrollingView stopAnimating];
+    [self.indicatorView stopAnimating];
 }
 
 #pragma mark- Pull To Refresh
 
 -(void)enablePullToRefreshWithActionHandler:(void (^)(void))actionHandler {
     
-    self.pullToRefreshActionHandler = actionHandler;
+    /* add pullToRefresh if search bar is not visible */
     
-    __weak typeof(self) weakSelf = self;
-    
-    [self addPullToRefreshWithActionHandler:^{
-        [weakSelf performPullToRefresh];
-    }];
+    if(!_isSearchON){
+        
+        self.pullToRefreshActionHandler = actionHandler;
+        
+        __weak typeof(self) weakSelf = self;
+        
+        [self addPullToRefreshWithActionHandler:^{
+            [weakSelf performPullToRefresh];
+        }];
+    }
 }
 
 -(void)performPullToRefresh {
@@ -317,9 +359,6 @@ static CGFloat    kDefaultLabelMargin         = 25;
         
         // perform action
         self.pullToRefreshActionHandler();
-        
-        // once refresh, allow the infinite scroll again
-        self.showsInfiniteScrolling = YES;
     }
 }
 
@@ -328,6 +367,7 @@ static CGFloat    kDefaultLabelMargin         = 25;
 -(void)enableInfiniteScrollingWithActionHandler:(void (^)(void))actionHandler {
     
     self.infiniteScrollingActionHandler = actionHandler;
+    isInfiniteScrollingEnabled = YES;
     
     __weak typeof(self) weakSelf = self;
     
@@ -351,26 +391,83 @@ static CGFloat    kDefaultLabelMargin         = 25;
     
     if(self.refreshAllDataActionHandler){
         
-        // clear all data
-        [self.dataSourceArray removeAllObjects];
-        
-        // reload once
-        [self reloadData];
+        [self clearAllData];
         
         // set startIndex to default
         self.startIndex = kDefaultStartIndex;
         
         // once reset, allow the infinite scroll again
-        self.showsInfiniteScrolling = YES;
+        
+        if(isInfiniteScrollingEnabled)
+            self.showsInfiniteScrolling = YES;
         
         self.refreshAllDataActionHandler();
     }
+}
+
+#pragma mark- Web search
+
+-(void)enableWebSearchWithPlaceHolder:(NSString *)placeHolderString actionHandler:(void (^)(NSString *))actionHandler {
+
+    self.searchPlaceHolder = placeHolderString;
+    self.webSearchActionHandler = actionHandler;
+    self.isSearchON = YES;
+    
+    /* disable pullToRefresh for search bar */
+    self.showsPullToRefresh = self.isPulltoRefershON = self.showsInfiniteScrolling = NO;
+    
+    [self addSearchBarWithPlaceHolder:self.searchPlaceHolder];
+}
+
+-(void)addSearchBarWithPlaceHolder:(NSString *)placeHolder {
+    
+    self.searchBar = [[RSSearchBar alloc] init];
+    [self.searchBar setFrame:CGRectMake(0, 0, self.frame.size.width, kDefaultSearchBarHeight) placeHolder:placeHolder font:nil andTextColor:nil];
+    
+    self.searchBar.tintColor = [[UIColor darkTextColor] colorWithAlphaComponent:0.9];
+    self.searchBar.barTintColor = [UIColor lightGrayColor];
+    
+    self.searchBar.showsCancelButton = YES;
+    self.searchBar.delegate = self;
+    
+    // add search bar to tableHeaderView
+    self.tableHeaderView = self.searchBar;
+}
+
+#pragma mark- SearchBar Delegate
+
+-(void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText {
+    
+    // remove previous data
+    [self.dataSourceArray removeAllObjects];
+    [self reloadData];
+    
+    // hide backgorund label when user is typing
+    self.lblNoDataFound.hidden = YES;
+    
+    // set startIndex to default
+    self.startIndex = kDefaultStartIndex;
+    
+    if(self.webSearchActionHandler){
+        
+        [self startAnimation];
+        self.webSearchActionHandler(searchText);
+    }
+}
+
+-(void)searchBarSearchButtonClicked:(UISearchBar *)searchBar {
+    [searchBar resignFirstResponder];
+}
+
+-(void)searchBarCancelButtonClicked:(UISearchBar *)searchBar {
+    [searchBar resignFirstResponder];
 }
 
 - (void)layoutSubviews {
     [super layoutSubviews];
     
     self.lblNoDataFound.frame = self.labelFrame;
+    self.indicatorView.center = CGPointMake(CGRectGetMidX(self.bounds), CGRectGetMidY(self.bounds));
 }
 
 #pragma mark- Setter / Getter
@@ -378,9 +475,11 @@ static CGFloat    kDefaultLabelMargin         = 25;
 -(NSMutableArray *)dataSourceArray{
     
     if(!_dataSourceArray){
+        
         _dataSourceArray = [[NSMutableArray alloc] init];
+        return _dataSourceArray;
     }
-    return _dataSourceArray;
+    return _tableViewDataSource.dataArray;
 }
 
 -(void)setNoDataFoundMessage:(NSString *)noDataFoundMessage {
@@ -389,29 +488,47 @@ static CGFloat    kDefaultLabelMargin         = 25;
     self.lblNoDataFound.text = _noDataFoundMessage;
 }
 
+-(NSString *)searchPlaceHolder {
+    
+    if(!_searchPlaceHolder){
+        _searchPlaceHolder = @"Search";
+    }
+    return _searchPlaceHolder;
+}
+
 -(NSString *)noDataFoundMessage {
     
     if(!_noDataFoundMessage){
-        _noDataFoundMessage = kDefaultNoDataFoundMessage;
+        _noDataFoundMessage = (_isSearchON) ? kDefaultNoResultFoundMessage : kDefaultNoDataFoundMessage;
     }
     return _noDataFoundMessage;
+}
+
+-(UIActivityIndicatorView *)indicatorView {
+    
+    if(!_indicatorView){
+        _indicatorView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+    }
+    return _indicatorView;
 }
 
 -(UILabel *)lblNoDataFound {
     
     if(!_lblNoDataFound){
+        
         _lblNoDataFound = [[UILabel alloc] initWithFrame:self.labelFrame];
-        _lblNoDataFound.text = self.noDataFoundMessage;
         _lblNoDataFound.font = [UIFont systemFontOfSize:17];
         _lblNoDataFound.textAlignment = NSTextAlignmentCenter;
         _lblNoDataFound.numberOfLines = 0;
         _lblNoDataFound.hidden = YES;
+        _lblNoDataFound.backgroundColor = [UIColor whiteColor];
+        _lblNoDataFound.text = self.noDataFoundMessage;
     }
     return _lblNoDataFound;
 }
 
 -(CGRect)labelFrame {
-    return CGRectMake(self.frame.origin.x + kDefaultLabelMargin, self.frame.origin.y + kDefaultLabelMargin, self.frame.size.width - 2*kDefaultLabelMargin, self.frame.size.height - 2*kDefaultLabelMargin);
+    return CGRectMake(kDefaultLabelMargin, self.bounds.origin.y, self.bounds.size.width-(2*kDefaultLabelMargin), self.bounds.size.height);
 }
 
 @end

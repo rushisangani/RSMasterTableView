@@ -46,6 +46,7 @@ typedef void (^UITableViewCellConfiguration)(id cell, id object, NSIndexPath *in
 
 /* properties */
 
-@property (nonatomic, assign) BOOL isSectionAvailable;     /* check if tableview is with multiple sections */
+@property (nonatomic, strong) NSMutableArray *dataArray;   /* dataSource array */
+@property (nonatomic, assign) BOOL isMultipleSections;     /* check if tableview is with multiple sections */
 
 @end
