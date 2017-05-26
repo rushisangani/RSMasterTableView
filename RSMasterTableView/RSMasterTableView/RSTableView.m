@@ -347,6 +347,8 @@ static NSString   *kDefaultNoResultFoundMessage = @"No result found.";
 
 -(void)performPullToRefresh {
     
+    [self stopAnimation];
+    
     if(self.pullToRefreshActionHandler){
         
         // set startIndex to default
@@ -355,7 +357,12 @@ static NSString   *kDefaultNoResultFoundMessage = @"No result found.";
         self.isPulltoRefershON = YES;
         
         // start animation
-        [self.pullToRefreshView startAnimating];
+        if(self.dataSourceArray.count > 0){
+            [self.pullToRefreshView startAnimating];
+        }
+        else {
+            [self startAnimation];
+        }
         
         // perform action
         self.pullToRefreshActionHandler();
@@ -517,12 +524,13 @@ static NSString   *kDefaultNoResultFoundMessage = @"No result found.";
     if(!_lblNoDataFound){
         
         _lblNoDataFound = [[UILabel alloc] initWithFrame:self.labelFrame];
-        _lblNoDataFound.font = [UIFont systemFontOfSize:17];
+        _lblNoDataFound.font = [UIFont systemFontOfSize:16];
         _lblNoDataFound.textAlignment = NSTextAlignmentCenter;
         _lblNoDataFound.numberOfLines = 0;
         _lblNoDataFound.hidden = YES;
         _lblNoDataFound.backgroundColor = [UIColor whiteColor];
         _lblNoDataFound.text = self.noDataFoundMessage;
+        _lblNoDataFound.textColor = [UIColor darkGrayColor];
     }
     return _lblNoDataFound;
 }

@@ -25,7 +25,7 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
-typedef void (^UITableViewCellConfiguration)(id cell, id object, NSIndexPath *indexPath);
+typedef void (^UITableViewCellConfiguration)(id _Nonnull cell, id _Nonnull object, NSIndexPath * _Nonnull indexPath);
 
 @interface RSTableViewDataSource : NSObject <UITableViewDataSource>
 
@@ -33,20 +33,20 @@ typedef void (^UITableViewCellConfiguration)(id cell, id object, NSIndexPath *in
 
 /* initialize with array for single tableView section */
 
--(instancetype)initWithArray:(NSMutableArray *)dataArray cellIdentifer:(NSString *)cellIdentifier andCellConfiguration:(UITableViewCellConfiguration)cellConfigurationBlock;
+-(instancetype _Nonnull )initWithArray:(NSMutableArray *_Nullable)dataArray cellIdentifer:(NSString *_Nonnull)cellIdentifier andCellConfiguration:(UITableViewCellConfiguration _Nonnull )cellConfigurationBlock;
 
 /* initialize with sections for multiple tableView section, where section title will be key of each dictionary and section data will be the array object associated with that key */
 
--(instancetype)initWitSections:(NSMutableArray *)sectionsArray cellIdentifer:(NSString *)cellIdentifier  andCellConfiguration:(UITableViewCellConfiguration)cellConfigurationBlock;
+-(instancetype _Nonnull )initWitSections:(NSMutableArray *_Nullable)sectionsArray cellIdentifer:(NSString *_Nonnull)cellIdentifier  andCellConfiguration:(UITableViewCellConfiguration _Nonnull )cellConfigurationBlock;
 
 /* get object at indexPath */
 
--(id)objectAtIndexPath:(NSIndexPath *)indexPath;
+-(id _Nullable )objectAtIndexPath:(NSIndexPath *_Nonnull)indexPath;
 
 
 /* properties */
 
-@property (nonatomic, strong) NSMutableArray *dataArray;   /* dataSource array */
+@property (nonatomic, strong) NSMutableArray * _Nullable dataArray;   /* dataSource array */
 @property (nonatomic, assign) BOOL isMultipleSections;     /* check if tableview is with multiple sections */
 
 @end
