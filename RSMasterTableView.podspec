@@ -2,7 +2,7 @@
 Pod::Spec.new do |s|
 
   s.name         = "RSMasterTableView"
-  s.version      = "1.0.0"
+  s.version      = "1.0.1"
   s.requires_arc = true
   s.summary      = "A powerful UITableView with inbuilt PullToRefresh and Load More functionality."
   s.description  = <<-DESC
