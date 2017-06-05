@@ -38,6 +38,7 @@ static NSString   *kDefaultNoResultFoundMessage = @"No result found.";
 @property (nonatomic, copy) void(^webSearchActionHandler)(NSString *searchString);
 
 @property (nonatomic, strong) UILabel *lblNoDataFound;
+@property (nonatomic, strong) UIView *backgroundContainerView;
 @property (nonatomic, strong) UIActivityIndicatorView *indicatorView;
 
 @property (nonatomic, strong) NSString *searchPlaceHolder;
@@ -65,11 +66,13 @@ static NSString   *kDefaultNoResultFoundMessage = @"No result found.";
     // hide empty cells
     self.tableFooterView = [UIView new];
     
-    // set no data found label as background view
-    [self setBackgroundView:self.lblNoDataFound];
+    // set no data found label in background view
+    [self.backgroundContainerView addSubview:self.lblNoDataFound];
     
     // add indicatorView
-    [self addSubview:self.indicatorView];
+    [self.backgroundContainerView addSubview:self.indicatorView];
+    
+    [self setBackgroundView:self.backgroundContainerView];
     
     self.startIndex = kDefaultStartIndex;
     self.recordsPerPage = kDefaultRecordsPerPage;
@@ -97,7 +100,7 @@ static NSString   *kDefaultNoResultFoundMessage = @"No result found.";
 - (void)didCompleteFetchData:(NSArray *)dataArray withTotalCount:(NSUInteger)totalCount {
     
     // remove old data on pull to refresh and search
-    if(self.isPulltoRefershON || self.isSearchON) {
+    if(self.isPulltoRefershON || (self.isSearchON && self.startIndex == kDefaultStartIndex)) {
         [self.dataSourceArray removeAllObjects];
     }
     
@@ -136,9 +139,10 @@ static NSString   *kDefaultNoResultFoundMessage = @"No result found.";
         
         [self.dataSourceArray addObjectsFromArray:dataArray];
         
-        // show no data found message if no data
+        // show background view if no data
         if(self.dataSourceArray.count == 0 && (dataArray == nil || dataArray.count == 0)){
-            self.lblNoDataFound.hidden = NO;
+            
+            [self showNoDataLabel];
             [self reloadData];
         }
         else{
@@ -252,9 +256,9 @@ static NSString   *kDefaultNoResultFoundMessage = @"No result found.";
     
     [self.dataSourceArray addObjectsFromArray:dataArray];
     
-    // show no data found message if no data
+    // show background view if no data
     if(self.dataSourceArray.count == 0){
-        self.lblNoDataFound.hidden = NO;
+        [self showNoDataLabel];
     }
     else{
         [self insertNewSectionsFromStartIndex:startSection toEndIndex:endSection];
@@ -263,8 +267,8 @@ static NSString   *kDefaultNoResultFoundMessage = @"No result found.";
 
 - (void)insertRowsInSection:(NSUInteger)section fromStartIndex:(NSUInteger)startIndex toEndIndex:(NSUInteger)endIndex {
     
-    // hide backgorund label
-    self.lblNoDataFound.hidden = YES;
+    // hide backgorund view
+    self.backgroundContainerView.hidden = YES;
     
     // direct reload if pull to refresh
     if(self.isPulltoRefershON || self.isSearchON){
@@ -292,8 +296,8 @@ static NSString   *kDefaultNoResultFoundMessage = @"No result found.";
 
 -(void)insertNewSectionsFromStartIndex:(NSUInteger)startIndex toEndIndex:(NSUInteger)endIndex {
     
-    // hide backgorund label
-    self.lblNoDataFound.hidden = YES;
+    // hide backgorund view
+    self.backgroundContainerView.hidden = YES;
     
     // direct reload if pull to refresh
     if(self.isPulltoRefershON || self.isSearchON){
@@ -316,6 +320,7 @@ static NSString   *kDefaultNoResultFoundMessage = @"No result found.";
 
 -(void)startAnimation {
     
+    self.backgroundContainerView.hidden = NO;
     self.lblNoDataFound.hidden = YES;
     [self.indicatorView startAnimating];
 }
@@ -324,6 +329,12 @@ static NSString   *kDefaultNoResultFoundMessage = @"No result found.";
     
     [self.pullToRefreshView stopAnimating];
     [self.infiniteScrollingView stopAnimating];
+    [self.indicatorView stopAnimating];
+}
+
+-(void)showNoDataLabel {
+    
+    self.backgroundContainerView.hidden = self.lblNoDataFound.hidden = NO;
     [self.indicatorView stopAnimating];
 }
 
@@ -415,7 +426,7 @@ static NSString   *kDefaultNoResultFoundMessage = @"No result found.";
 #pragma mark- Web search
 
 -(void)enableWebSearchWithPlaceHolder:(NSString *)placeHolderString actionHandler:(void (^)(NSString *))actionHandler {
-
+    
     self.searchPlaceHolder = placeHolderString;
     self.webSearchActionHandler = actionHandler;
     self.isSearchON = YES;
@@ -432,7 +443,7 @@ static NSString   *kDefaultNoResultFoundMessage = @"No result found.";
     [self.searchBar setFrame:CGRectMake(0, 0, self.frame.size.width, kDefaultSearchBarHeight) placeHolder:placeHolder font:nil andTextColor:nil];
     
     self.searchBar.tintColor = [[UIColor darkTextColor] colorWithAlphaComponent:0.9];
-    self.searchBar.barTintColor = [UIColor lightGrayColor];
+    self.searchBar.barTintColor = self.backgroundContainerView.backgroundColor;
     
     self.searchBar.showsCancelButton = YES;
     self.searchBar.delegate = self;
@@ -448,9 +459,6 @@ static NSString   *kDefaultNoResultFoundMessage = @"No result found.";
     // remove previous data
     [self.dataSourceArray removeAllObjects];
     [self reloadData];
-    
-    // hide backgorund label when user is typing
-    self.lblNoDataFound.hidden = YES;
     
     // set startIndex to default
     self.startIndex = kDefaultStartIndex;
@@ -474,7 +482,7 @@ static NSString   *kDefaultNoResultFoundMessage = @"No result found.";
     [super layoutSubviews];
     
     self.lblNoDataFound.frame = self.labelFrame;
-    self.indicatorView.center = CGPointMake(CGRectGetMidX(self.bounds), CGRectGetMidY(self.bounds));
+    self.indicatorView.center = CGPointMake(CGRectGetMidX(self.backgroundContainerView.bounds), CGRectGetMidY(self.backgroundContainerView.bounds));
 }
 
 #pragma mark- Setter / Getter
@@ -515,6 +523,8 @@ static NSString   *kDefaultNoResultFoundMessage = @"No result found.";
     
     if(!_indicatorView){
         _indicatorView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+        _indicatorView.hidesWhenStopped = YES;
+        
     }
     return _indicatorView;
 }
@@ -527,16 +537,26 @@ static NSString   *kDefaultNoResultFoundMessage = @"No result found.";
         _lblNoDataFound.font = [UIFont systemFontOfSize:16];
         _lblNoDataFound.textAlignment = NSTextAlignmentCenter;
         _lblNoDataFound.numberOfLines = 0;
-        _lblNoDataFound.hidden = YES;
-        _lblNoDataFound.backgroundColor = [UIColor whiteColor];
         _lblNoDataFound.text = self.noDataFoundMessage;
         _lblNoDataFound.textColor = [UIColor darkGrayColor];
+        _lblNoDataFound.hidden = YES;
     }
     return _lblNoDataFound;
 }
 
 -(CGRect)labelFrame {
-    return CGRectMake(kDefaultLabelMargin, self.bounds.origin.y, self.bounds.size.width-(2*kDefaultLabelMargin), self.bounds.size.height);
+    return CGRectMake(kDefaultLabelMargin, _backgroundContainerView.bounds.origin.y, _backgroundContainerView.bounds.size.width-(2*kDefaultLabelMargin), _backgroundContainerView.bounds.size.height);
+}
+
+-(UIView *)backgroundContainerView {
+    
+    if(!_backgroundContainerView){
+        _backgroundContainerView = [UIView new];
+        _backgroundContainerView.frame = self.bounds;
+        _backgroundContainerView.backgroundColor = [[UIColor whiteColor] colorWithAlphaComponent:0.7];
+        _backgroundContainerView.hidden = YES;
+    }
+    return _backgroundContainerView;
 }
 
 @end
