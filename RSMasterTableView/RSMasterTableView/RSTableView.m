@@ -425,7 +425,7 @@ static NSString   *kDefaultNoResultFoundMessage = @"No result found.";
 
 #pragma mark- Web search
 
--(void)enableWebSearchWithPlaceHolder:(NSString *)placeHolderString actionHandler:(void (^)(NSString *))actionHandler {
+-(void)enableSearchWithPlaceHolder:(NSString *)placeHolderString borderColor:(UIColor *)borderColor actionHandler:(void (^)(NSString *))actionHandler {
     
     self.searchPlaceHolder = placeHolderString;
     self.webSearchActionHandler = actionHandler;
@@ -434,16 +434,17 @@ static NSString   *kDefaultNoResultFoundMessage = @"No result found.";
     /* disable pullToRefresh for search bar */
     self.showsPullToRefresh = self.isPulltoRefershON = self.showsInfiniteScrolling = NO;
     
-    [self addSearchBarWithPlaceHolder:self.searchPlaceHolder];
+    [self addSearchBarWithPlaceHolder:self.searchPlaceHolder borderColor:borderColor];
 }
 
--(void)addSearchBarWithPlaceHolder:(NSString *)placeHolder {
+-(void)addSearchBarWithPlaceHolder:(NSString *)placeHolder borderColor:(UIColor *)borderColor {
     
     self.searchBar = [[RSSearchBar alloc] init];
     [self.searchBar setFrame:CGRectMake(0, 0, self.frame.size.width, kDefaultSearchBarHeight) placeHolder:placeHolder font:nil andTextColor:nil];
     
-    self.searchBar.tintColor = [[UIColor darkTextColor] colorWithAlphaComponent:0.9];
+    self.searchBar.tintColor = [[UIColor darkTextColor] colorWithAlphaComponent:0.6];
     self.searchBar.barTintColor = self.backgroundContainerView.backgroundColor;
+    self.searchBar.bottomBorderColor = borderColor;
     
     self.searchBar.showsCancelButton = YES;
     self.searchBar.delegate = self;

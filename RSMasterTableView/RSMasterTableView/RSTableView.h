@@ -57,7 +57,7 @@ static CGFloat kDefaultLabelMargin                  = 25;
 
 /* Web search method */
 
--(void)enableWebSearchWithPlaceHolder:(NSString *)placeHolderString actionHandler:(void(^)(NSString *searchString))actionHandler;
+-(void)enableSearchWithPlaceHolder:(NSString *)placeHolderString borderColor:(UIColor *)borderColor actionHandler:(void(^)(NSString *searchString))actionHandler;
 
 
 /***** fetch data completion *****/

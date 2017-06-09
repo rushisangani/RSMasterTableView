@@ -2,7 +2,7 @@
 Pod::Spec.new do |s|
 
   s.name         = "RSMasterTableView"
-  s.version      = "1.0.4"
+  s.version      = "1.0.5"
   s.requires_arc = true
   s.summary      = "A powerful UITableView with inbuilt PullToRefresh and Load More functionality."
   s.description  = <<-DESC
@@ -13,6 +13,6 @@ Pod::Spec.new do |s|
   s.license      = { :type => "GNU GENERAL PUBLIC LICENSE", :file => "LICENSE" }
   s.author       = { "Rushi Sangani" => "rushisangani@gmail.com" }
   s.platform     = :ios, "9.0"
-  s.source       = { :git => "https://github.com/rushisangani/RSMasterTableView.git", :tag => "1.0.4" }
+  s.source       = { :git => "https://github.com/rushisangani/RSMasterTableView.git", :tag => "1.0.5" }
   s.source_files = "RSMasterTableView/**/*.{h,m}"
 end

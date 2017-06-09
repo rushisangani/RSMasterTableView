@@ -113,7 +113,7 @@ CGFloat kDefaultMargin = 5;
         shapeLayer.strokeColor = self.bottomBorderColor.CGColor;
     }
     
-    shapeLayer.lineWidth = 3;
+    shapeLayer.lineWidth = 2;
     [self.layer addSublayer:shapeLayer];
 }
 
