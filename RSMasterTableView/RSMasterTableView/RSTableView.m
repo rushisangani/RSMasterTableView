@@ -446,7 +446,7 @@ static NSString   *kDefaultNoResultFoundMessage = @"No result found.";
     self.searchBar.barTintColor = self.backgroundContainerView.backgroundColor;
     self.searchBar.bottomBorderColor = borderColor;
     
-    self.searchBar.showsCancelButton = YES;
+    self.searchBar.showsCancelButton = NO;
     self.searchBar.delegate = self;
     
     // add search bar to tableHeaderView
@@ -477,6 +477,14 @@ static NSString   *kDefaultNoResultFoundMessage = @"No result found.";
 
 -(void)searchBarCancelButtonClicked:(UISearchBar *)searchBar {
     [searchBar resignFirstResponder];
+}
+
+- (void)searchBarTextDidBeginEditing:(UISearchBar *)searchBar{
+    self.searchBar.showsCancelButton = YES;
+}
+
+- (void)searchBarTextDidEndEditing:(UISearchBar *)searchBar{
+    self.searchBar.showsCancelButton = NO;
 }
 
 - (void)layoutSubviews {
