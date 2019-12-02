@@ -61,18 +61,12 @@ CGFloat kDefaultMargin = 5;
 }
 
 -(void)drawRect:(CGRect)rect {
-    
-    NSUInteger index = [self indexOfTextFieldInSubViews];
-    
-    if(index){
-        searchTextField = (UITextField *)(self.subviews[0]).subviews[index];
         
         searchTextField.frame = CGRectMake(kDefaultMargin, kDefaultMargin, self.frame.size.width - 2*kDefaultMargin, self.frame.size.height - 2*kDefaultMargin);
         
         searchTextField.font = self.prefferedTextFont;
         searchTextField.textColor = self.prefferedTextColor;
         searchTextField.backgroundColor = self.barTintColor;
-    }
     
     [self drawBottomLine];
     [super drawRect:rect];
@@ -80,19 +74,29 @@ CGFloat kDefaultMargin = 5;
 
 #pragma mark- Private methods
 
--(NSUInteger)indexOfTextFieldInSubViews {
-    
-    NSUInteger index = NSNotFound;
+-(UITextField *)TextFieldInSubViews {
+    UITextField *textField;
     UIView *searchBarView = self.subviews[0];
     
     for (int i = 0; i < searchBarView.subviews.count; ++i) {
-        
-        if([searchBarView.subviews[i] isKindOfClass:[UITextField class]]){
-            index = i;
-            break;
+        if (@available(iOS 13, *)){
+            UIView *tempView = searchBarView.subviews[i];
+            if(tempView.subviews.count > 0){
+                for(UIView * innerView in tempView.subviews){
+                    if([innerView isKindOfClass:[UITextField class]]){
+                        textField = innerView;
+                        break;
+                    }
+                }
+            }
+        }else {
+            if([searchBarView.subviews[i] isKindOfClass:[UITextField class]]){
+                textField = searchBarView.subviews[i];
+                break;
+            }
         }
     }
-    return index;
+    return textField;
 }
 
 -(void)drawBottomLine {
